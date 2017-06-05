@@ -150,7 +150,6 @@ def perception_step(Rover):
 
     Rover.worldmap[ypix_world_wall, xpix_world_wall, 2] -= 255
     Rover.worldmap[ypix_world_wall, xpix_world_wall, 0] += 255
-    #Rover.worldmap[ypix_world_rocks, xpix_world_rocks, 1] += 1
 
 
     rock_dist, rock_angles = to_polar_coords(xpix_rock, ypix_rock)

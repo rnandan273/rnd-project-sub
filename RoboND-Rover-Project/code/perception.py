@@ -145,8 +145,8 @@ def perception_step(Rover):
                                 Rover.pos[1], Rover.yaw,
                                 Rover.worldmap.shape[0], scale)
 
-    Rover.worldmap[ypix_world, xpix_world, 2] += 255
-    Rover.worldmap[ypix_world, xpix_world, 0] -= 255
+    Rover.worldmap[ypix_world, xpix_world, 2] += 1
+    Rover.worldmap[ypix_world, xpix_world, 0] -= 1
 
     Rover.worldmap[ypix_world_wall, xpix_world_wall, 2] -= 255
     Rover.worldmap[ypix_world_wall, xpix_world_wall, 0] += 255

@@ -11,13 +11,12 @@ def color_thresh(img, rgb_thresh=(160, 160, 160) , rgb_thresh_max=(255, 255, 255
     # where threshold was met
     above_thresh = (img[:,:,0] > rgb_thresh[0]) \
                 & (img[:,:,1] > rgb_thresh[1]) \
-                & (img[:,:,2] > rgb_thresh[2])
-
-    below_thresh = (img[:,:,0] < rgb_thresh[0]) \
-                & (img[:,:,1] < rgb_thresh[1]) \
-                & (img[:,:,2] < rgb_thresh[2])
+                & (img[:,:,2] > rgb_thresh[2]) \
+                &(img[:,:,0] < rgb_thresh_max[0]) \
+                & (img[:,:,1] < rgb_thresh_max[1]) \
+                & (img[:,:,2] < rgb_thresh_max[2])
     # Index the array of zeros with the boolean array and set to 1
-    color_select[above_thresh] = 1
+    color_select[above_thresh] = 255
     #color_select[below_thresh] = 1
     # Return the binary image
     return color_select
@@ -128,6 +127,11 @@ def perception_step(Rover):
     wall_threshed = color_thresh(warped, rgb_thresh=(0, 0, 0), rgb_thresh_max=(160, 160, 160))
     rock_threshed = color_thresh(warped, rgb_thresh=(150, 100, 0), rgb_thresh_max=(255, 200, 50))
     # 4) Convert thresholded image pixel values to rover-centric coords
+
+    Rover.vision_image[:, :, 2] = rock_threshed # red
+    Rover.vision_image[:, :, 0] = wall_threshed # green
+    Rover.vision_image[:, :, 1] = threshed # blue
+
     xpix_nav, ypix_nav = rover_coords(threshed)
     xpix_wall, ypix_wall = rover_coords(wall_threshed)
     xpix_rock, ypix_rock = rover_coords(rock_threshed)
@@ -148,14 +152,14 @@ def perception_step(Rover):
     Rover.worldmap[ypix_world, xpix_world, 2] += 1
     Rover.worldmap[ypix_world, xpix_world, 0] -= 1
 
-    Rover.worldmap[ypix_world_wall, xpix_world_wall, 2] -= 255
-    Rover.worldmap[ypix_world_wall, xpix_world_wall, 0] += 255
+    Rover.worldmap[ypix_world_wall, xpix_world_wall, 2] -= 0
+    Rover.worldmap[ypix_world_rock, xpix_world_rock, 0] += 1
 
 
     rock_dist, rock_angles = to_polar_coords(xpix_rock, ypix_rock)
-    print("perception")
-    print(rock_dist)
-    print(rock_angles)
+    #print("perception")
+    #print(rock_dist)
+    #print(rock_angles)
 
     # Does the rover see a rock
     if len(rock_dist) > 0:
@@ -171,8 +175,9 @@ def perception_step(Rover):
         if Rover.mode == 'rock_visible':
             Rover.mode = 'forward'
 
-        dist, angles = to_polar_coords(xpix, ypix)
+        dist, angles = to_polar_coords(xpix_nav, ypix_nav)
         Rover.nav_dists = dist
-        Rover.nav_angles = angle
-    print("Before returning from perception")
+        Rover.nav_angles = angles
+
+    #print("Before returning from perception", Rover.mode)
     return Rover
